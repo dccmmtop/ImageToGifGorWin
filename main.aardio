@@ -1,0 +1,74 @@
+import win.ui;
+import fsys.dlg;
+import win.clip;
+import console;
+import gdip;
+import gdip.bitmap;
+import process;
+/*DSG{{*/
+mainForm = win.form(text="Ms. Wang";right=407;bottom=271;border="thin";max=false;minimize=1;mode="popup";sysmenu=1;title=1)
+mainForm.add(
+button={cls="button";text="粘贴";left=40;top=24;right=88;bottom=48;z=1};
+button3={cls="button";text="选择";left=104;top=24;right=152;bottom=48;z=3};
+makeBtn={cls="button";text="制作";left=40;top=72;right=152;bottom=128;z=2};
+picturebox={cls="picturebox";left=288;top=72;right=289;bottom=73;z=4};
+picturebox2={cls="picturebox";left=176;top=32;right=384;bottom=248;border=1;notify=1;z=5};
+static={cls="static";text='制作完成后，\r自动复制到剪切板';left=40;top=160;right=152;bottom=200;notify=1;transparent=1;z=6}
+)
+/*}}*/
+
+var source = "";
+
+mainForm.makeBtn.oncommand = function(id,event){
+   
+	var cmd = ".\toGif.exe " + source;
+	//console.log(cmd)
+    var prcs = process("cmd.exe","/c", '"' + cmd + '"' );
+    prcs.wait();
+
+var i= 0
+while(i < 3){
+	mainForm.static.text = "现在可以去粘贴了！"
+	sleep(300)
+	mainForm.static.text = ""
+	sleep(100)
+	i ++
+}	
+}
+
+mainForm.picturebox2.oncommand = function(id,event){
+	
+}
+
+mainForm.button3.oncommand = function(id,event){
+	
+	file = fsys.dlg.open()
+	source = '"' + file + '"'
+	mainForm.picturebox2.image = file
+	
+}
+
+mainForm.button.oncommand = function(id,event){
+	
+  //读取剪贴板图像
+   var hBmp = win.clip.readBitmap()
+	if(!hBmp){
+		return winform.msgboxErr("剪贴板没有图像");
+	}
+
+		//转换为 GDI+ 图像
+	var bmp = gdip.bitmap(hBmp);
+
+	
+	//存为图像文件
+	bmp.save("/clip.jpg")
+	source = ".\clip.jpg"
+	 mainForm.picturebox2.image = hBmp;
+}
+
+mainForm.static.oncommand = function(id,event){
+	
+}
+
+mainForm.show();
+return win.loopMessage();
